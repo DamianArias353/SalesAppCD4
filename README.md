@@ -1,84 +1,99 @@
-# Sales Evaluation App - Scaffold
+# Sales Management & Evaluation App
 
-Production-like scaffold for a technical assessment with:
+Full-stack technical assessment project implemented with a simple layered architecture.
+
+## Features
+
+- Create a sale (`customer`, `product`, `amount`)
+- List sales (`customer`, `product`, `amount`, `score`)
+- Evaluate a sale with score `1..5`
+- Basic validation and API/UI feedback
+- Average score summary for evaluated sales
+
+## Stack
 
 - Backend: Node.js + Express + TypeScript
 - Frontend: Next.js (App Router) + TypeScript
 - Database: SQLite
 - ORM: Prisma
 - Runtime: Docker Compose
+- Tests: Vitest + Supertest (backend)
 
 ## Project Structure
 
 ```text
 .
 ├── backend
-│   ├── prisma
-│   │   └── schema.prisma
+│   ├── prisma/schema.prisma
 │   ├── src
 │   │   ├── presentation
 │   │   ├── application
 │   │   ├── domain
 │   │   ├── infrastructure
-│   │   ├── shared
-│   │   ├── app.ts
-│   │   └── main.ts
-│   ├── tests
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── Dockerfile
-│   └── .env.example
+│   │   └── shared
+│   └── tests/integration
 ├── frontend
 │   ├── app
 │   ├── components
-│   ├── services
+│   ├── services/api
 │   ├── types
-│   ├── lib
-│   ├── tests
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── next.config.mjs
-│   ├── Dockerfile
-│   └── .env.example
-├── docker-compose.yml
-├── .editorconfig
-└── .gitignore
+│   └── lib
+└── docker-compose.yml
 ```
 
-## Quick Start
+## API
 
-### Run with Docker
+Base URL:
+- `http://localhost:4000`
+
+The same routes are also available under `/api` for compatibility (for example `/api/sales`).
+
+### `GET /sales`
+Returns all sales.
+
+### `POST /sales`
+Creates a sale.
+
+Request body:
+```json
+{
+  "customer": "Acme Corp",
+  "product": "Premium Plan",
+  "amount": 1200
+}
+```
+
+Validation:
+- `customer` required
+- `product` required
+- `amount` required, numeric, `> 0`
+
+### `POST /sales/:id/evaluate`
+Assigns a score to an existing sale.
+
+Request body:
+```json
+{
+  "score": 4
+}
+```
+
+Validation:
+- `score` required
+- `score` integer between `1` and `5`
+- returns `404` when sale does not exist
+
+## Run With Docker
 
 ```bash
 docker compose up --build
 ```
 
 Services:
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:4000`
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000/api
-- Health endpoint: http://localhost:4000/api/health
-
-## Backend Notes
-
-- Layered architecture: presentation, application, domain, infrastructure, shared.
-- Manual dependency injection in `src/infrastructure/di/container.ts`.
-- Prisma configured for SQLite with `Sale` model.
-- Base REST endpoints scaffolded:
-  - `GET /api/health`
-  - `GET /api/sales`
-  - `POST /api/sales`
-
-## Frontend Notes
-
-- Next.js App Router structure ready for:
-  - sales list UI
-  - create sale UI
-  - evaluate sale UI
-- API layer scaffolded in `services/api`.
-- `NEXT_PUBLIC_API_BASE_URL` drives backend connection.
-
-## Local (without Docker)
+## Run Locally
 
 ### Backend
 
@@ -100,9 +115,38 @@ npm install
 npm run dev
 ```
 
-## Pending Business Implementation
+## Tests
 
-- Sales business rules/evaluation scoring logic.
-- Complete sales CRUD and richer validation flows.
-- UI forms, data fetching states, and submission handling.
-- Automated tests (unit/integration/e2e).
+Backend tests:
+
+```bash
+cd backend
+npm test
+```
+
+Covered cases:
+- creating a valid sale
+- rejecting invalid sale creation
+- listing sales
+- evaluating an existing sale
+- rejecting invalid score
+- returning 404 for non-existing sale evaluation
+
+## Design Notes (Pragmatic SOLID + GRASP + Clean Code)
+
+- **Single Responsibility**: controllers only orchestrate HTTP concerns; use cases contain application behavior; repositories isolate persistence.
+- **Dependency Inversion**: use cases depend on `SaleRepository` contract, not Prisma.
+- **Manual DI**: composition root in `backend/src/infrastructure/di/container.ts`.
+- **Controller thinness**: validation and request parsing are handled through DTO schemas + validation middleware.
+- **Error flow**: domain/application errors bubble up to centralized middleware for consistent HTTP responses.
+- **GRASP (Controller, Information Expert, Low Coupling)**:
+  - Presentation controllers coordinate requests.
+  - Repository implementations own DB details.
+  - Use cases keep domain/application rules independent from framework/persistence.
+- **REST clarity**: resources and actions are explicit and minimal for the scope.
+
+## Scope Intentionally Not Included
+
+- Authentication / authorization
+- Roles / permissions
+- Extra dashboards/modules beyond required scope

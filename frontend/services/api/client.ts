@@ -1,5 +1,23 @@
 import { clientEnv } from '@/lib/env';
 
+interface ApiErrorPayload {
+  error?: {
+    message?: string;
+    details?: unknown;
+  };
+}
+
+export class ApiClientError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly details?: unknown
+  ) {
+    super(message);
+    this.name = 'ApiClientError';
+  }
+}
+
 const buildApiUrl = (path: string) => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   return `${clientEnv.apiBaseUrl}${normalizedPath}`;
@@ -18,9 +36,26 @@ export const apiFetch = async <T>(
     }
   });
 
+  const isJsonResponse = response.headers
+    .get('content-type')
+    ?.includes('application/json');
+
+  const payload = (isJsonResponse ? await response.json() : null) as
+    | T
+    | ApiErrorPayload
+    | null;
+
   if (!response.ok) {
-    throw new Error(`API request failed with status ${response.status}`);
+    const message =
+      (payload as ApiErrorPayload | null)?.error?.message ??
+      `API request failed with status ${response.status}`;
+
+    throw new ApiClientError(
+      message,
+      response.status,
+      (payload as ApiErrorPayload | null)?.error?.details
+    );
   }
 
-  return (await response.json()) as T;
+  return payload as T;
 };

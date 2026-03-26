@@ -1,10 +1,7 @@
 import Link from 'next/link';
 
 const navItems = [
-  { href: '/', label: 'Home' },
-  { href: '/sales', label: 'Sales' },
-  { href: '/sales/new', label: 'Create Sale' },
-  { href: '/evaluations', label: 'Evaluations' }
+  { href: '/', label: 'Sales Dashboard' }
 ];
 
 export function MainNav() {
