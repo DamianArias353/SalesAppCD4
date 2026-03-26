@@ -1,4 +1,5 @@
 import { CreateSaleUseCase } from '../../application/use-cases/create-sale.use-case';
+import { EvaluateSaleUseCase } from '../../application/use-cases/evaluate-sale.use-case';
 import { HealthCheckUseCase } from '../../application/use-cases/health-check.use-case';
 import { ListSalesUseCase } from '../../application/use-cases/list-sales.use-case';
 import { HealthController } from '../../presentation/controllers/health.controller';
@@ -20,9 +21,14 @@ export const buildContainer = (): AppContainer => {
   const healthCheckUseCase = new HealthCheckUseCase();
   const createSaleUseCase = new CreateSaleUseCase(saleRepository);
   const listSalesUseCase = new ListSalesUseCase(saleRepository);
+  const evaluateSaleUseCase = new EvaluateSaleUseCase(saleRepository);
 
   const healthController = new HealthController(healthCheckUseCase);
-  const salesController = new SalesController(createSaleUseCase, listSalesUseCase);
+  const salesController = new SalesController(
+    createSaleUseCase,
+    listSalesUseCase,
+    evaluateSaleUseCase
+  );
 
   return {
     prisma,

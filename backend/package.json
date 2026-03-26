@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/main.ts",
+    "dev:docker": "tsx src/main.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
+    "test": "cross-env DATABASE_URL=file:./dev.db FRONTEND_ORIGIN=http://localhost:3000 NODE_ENV=test PORT=4000 vitest run",
+    "test:watch": "cross-env DATABASE_URL=file:./dev.db FRONTEND_ORIGIN=http://localhost:3000 NODE_ENV=test PORT=4000 vitest",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev --name init"
@@ -19,11 +22,15 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/supertest": "^6.0.3",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.1",
+    "cross-env": "^10.1.0",
     "prisma": "^6.5.0",
+    "supertest": "^7.1.4",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
   }
 }

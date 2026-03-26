@@ -13,3 +13,7 @@ export interface CreateSaleRequest {
   product: string;
   amount: number;
 }
+
+export interface EvaluateSaleRequest {
+  score: number;
+}

@@ -18,6 +18,7 @@ export const createApp = (controllers: PresentationControllers) => {
   );
   app.use(express.json());
 
+  app.use(registerRoutes(controllers));
   app.use('/api', registerRoutes(controllers));
 
   app.use(notFoundMiddleware);
