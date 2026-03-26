@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    command: sh -c "npm install && npx prisma generate && npx prisma db push && npm run dev"
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: file:/data/dev.db
+      FRONTEND_ORIGIN: http://localhost:3000
+    volumes:
+      - ./backend:/app
+      - backend_node_modules:/app/node_modules
+      - backend_data:/data
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0 --port 3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000/api
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  backend_node_modules:
+  frontend_node_modules:
+  backend_data:
