@@ -20,6 +20,7 @@ const initialFormState: FormState = {
   product: '',
   amount: ''
 };
+const NOTIFICATION_TIMEOUT_MS = 4500;
 
 const formatAmount = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -84,6 +85,66 @@ export function SalesDashboard() {
   useEffect(() => {
     void loadSales();
   }, []);
+
+  useEffect(() => {
+    if (!createFeedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCreateFeedback(null);
+    }, NOTIFICATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [createFeedback]);
+
+  useEffect(() => {
+    if (!createError) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCreateError(null);
+    }, NOTIFICATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [createError]);
+
+  useEffect(() => {
+    if (!evaluationFeedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setEvaluationFeedback(null);
+    }, NOTIFICATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [evaluationFeedback]);
+
+  useEffect(() => {
+    if (!evaluationError) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setEvaluationError(null);
+    }, NOTIFICATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [evaluationError]);
+
+  useEffect(() => {
+    if (!salesError) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setSalesError(null);
+    }, NOTIFICATION_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [salesError]);
 
   async function loadSales() {
     setIsLoadingSales(true);
